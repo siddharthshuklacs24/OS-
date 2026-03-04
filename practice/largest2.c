@@ -16,7 +16,10 @@
             }
         }
 
-        //getting 1st index element(2nd smallest)
-        printf("%d",arr[length-2]);
+        //getting last index element( largest)
+        printf("%d\n",arr[length-1]);
+        //getting 2nd last index element(2nd largest)
+        printf("%d\n",arr[length-2]);
+        
 
     }
