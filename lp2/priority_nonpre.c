@@ -34,7 +34,7 @@ void calcCT(struct process p[],int n) {
 
         int idx=-1;
         int bestPriority=999;
-
+        //running a loop to select the process arrived with highest priority
         for(int i=0;i<n;i++) {
 
             if(p[i].at<=time && p[i].done==0) {
@@ -51,7 +51,7 @@ void calcCT(struct process p[],int n) {
         if(idx==-1) {
             time++;
         }
-
+        //logic for calculating ct for selected highest priority arrived process
         else {
             time += p[idx].bt;
             p[idx].ct = time;
