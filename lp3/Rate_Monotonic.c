@@ -91,7 +91,7 @@ int main() {
 
     // Step 5: Scheduling simulation
     
-    int LIMIT = tasks_lcm(t,n);  // simulate till time 30
+    int LIMIT = tasks_lcm(t,n);  // simulate till lcm time
 
     printf("\n--- Scheduling ---\n");
 
