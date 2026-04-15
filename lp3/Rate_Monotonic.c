@@ -10,6 +10,31 @@ struct tasks {
     int next_arrival;
 };
 
+//gcd function for getting lcm
+int gcd(int a, int b) {
+    while(b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+//lcm function for 2 numbers
+int lcm(int a,int b) {
+    return (a*b)/gcd(a,b);
+}
+
+//getting lcm of all tasks
+int tasks_lcm(struct tasks t[],int n) {
+    int result=t[0].Ti;
+
+    for(int i=1;i<n;i++) {
+        result=lcm(result,t[i].Ti);
+    }
+    return result;
+}
+
 int main() {    
     
     int n;
@@ -65,7 +90,8 @@ int main() {
     }
 
     // Step 5: Scheduling simulation
-    int LIMIT = 30;  // simulate till time 30
+    
+    int LIMIT = tasks_lcm(t,n);  // simulate till time 30
 
     printf("\n--- Scheduling ---\n");
 
