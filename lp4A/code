@@ -1,71 +1,56 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
 
-int mutex = 1;
-int full = 0;
-int empty = 3;
-int x = 0;
+#define N 5  // Number of philosophers
 
-void wait_sem(int *s) {
-    (*s)--;
-}
+pthread_mutex_t forks[N];
 
-void signal_sem(int *s) {
-    (*s)++;
-}
+void* philosopher(void* num) {
+    int id = *(int*)num;
 
-void producer() {
-    if (empty == 0) {
-        printf("Buffer is full!\n");
-        return;
+    while (1) {
+        printf("Philosopher %d is thinking\n", id);
+        sleep(1);
+
+        // Deadlock prevention strategy
+        if (id % 2 == 0) {
+            pthread_mutex_lock(&forks[(id + 1) % N]); // right fork
+            pthread_mutex_lock(&forks[id]);           // left fork
+        } else {
+            pthread_mutex_lock(&forks[id]);           // left fork
+            pthread_mutex_lock(&forks[(id + 1) % N]); // right fork
+        }
+
+        printf("Philosopher %d is eating\n", id);
+        sleep(2);
+
+        pthread_mutex_unlock(&forks[id]);
+        pthread_mutex_unlock(&forks[(id + 1) % N]);
+
+        printf("Philosopher %d finished eating\n", id);
     }
-
-    wait_sem(&mutex);
-    wait_sem(&empty);
-    signal_sem(&full);
-
-    x++;
-    printf("Producer has produced: Item %d\n", x);
-
-    signal_sem(&mutex);
-}
-
-void consumer() {
-    if (full == 0) {
-        printf("Buffer is empty!\n");
-        return;
-    }
-
-    wait_sem(&mutex);
-    wait_sem(&full);
-    signal_sem(&empty);
-
-    printf("Consumer has consumed: Item %d\n", x);
-    x--;
-
-    signal_sem(&mutex);
 }
 
 int main() {
-    int choice;
+    pthread_t threads[N];
+    int ids[N];
 
-    while (1) {
-        printf("\nEnter 1.Producer 2.Consumer 3.Exit\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
+    // Initialize mutexes (forks)
+    for (int i = 0; i < N; i++) {
+        pthread_mutex_init(&forks[i], NULL);
+    }
 
-        switch (choice) {
-            case 1:
-                producer();
-                break;
-            case 2:
-                consumer();
-                break;
-            case 3:
-                exit(0);
-            default:
-                printf("Invalid choice!\n");
-        }
+    // Create philosopher threads
+    for (int i = 0; i < N; i++) {
+        ids[i] = i;
+        pthread_create(&threads[i], NULL, philosopher, &ids[i]);
+    }
+
+    // Join threads (never actually ends)
+    for (int i = 0; i < N; i++) {
+        pthread_join(threads[i], NULL);
     }
 
     return 0;
