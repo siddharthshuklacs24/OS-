@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int mutex = 1;
+int full = 0;
+int empty = 3;
+int x = 0;
+
+void wait_sem(int *s) {
+    (*s)--;
+}
+
+void signal_sem(int *s) {
+    (*s)++;
+}
+
+void producer() {
+    if (empty == 0) {
+        printf("Buffer is full!\n");
+        return;
+    }
+
+    wait_sem(&mutex);
+    wait_sem(&empty);
+    signal_sem(&full);
+
+    x++;
+    printf("Producer has produced: Item %d\n", x);
+
+    signal_sem(&mutex);
+}
+
+void consumer() {
+    if (full == 0) {
+        printf("Buffer is empty!\n");
+        return;
+    }
+
+    wait_sem(&mutex);
+    wait_sem(&full);
+    signal_sem(&empty);
+
+    printf("Consumer has consumed: Item %d\n", x);
+    x--;
+
+    signal_sem(&mutex);
+}
+
+int main() {
+    int choice;
+
+    while (1) {
+        printf("\nEnter 1.Producer 2.Consumer 3.Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                producer();
+                break;
+            case 2:
+                consumer();
+                break;
+            case 3:
+                exit(0);
+            default:
+                printf("Invalid choice!\n");
+        }
+    }
+
+    return 0;
+}
